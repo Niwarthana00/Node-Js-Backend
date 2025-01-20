@@ -1,21 +1,24 @@
-// fileName : server.js
-// Example using the http module
-const http = require('http');
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
 
-// Create an HTTP server
-const server = http.createServer((req, res) => {
-    // Set the response headers
-    res.writeHead(200, { 'Content-Type': 'text/html' });
+const app = express();
 
-    // Write the response content
-    res.write('<h1>Hello, Node.js HTTP Server!</h1>');
-    res.end();
-});
+// Middleware
+app.use(cors());
+app.use(express.json());
 
-// Specify the port to listen on
-const port = 3000;
+// MongoDB Connection
+mongoose
+    .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log("MongoDB connected"))
+    .catch((err) => console.error("DB connection error:", err));
 
-// Start the server
-server.listen(port, () => {
-    console.log(`Node.js HTTP server is running on port ${port}`);
-});
+// Routes
+const studentRoutes = require("./src/routes/students");
+app.use("/students", studentRoutes);
+
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
